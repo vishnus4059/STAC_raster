@@ -37,7 +37,31 @@
     22.771753463259397
   ],
   "properties": {
-    "datetime": "2025-06-12T06:19:58.260332Z"
+    "start_datetime": "2023-07-01T00:00:00Z",
+    "end_datetime": "2024-06-30T00:00:00Z",
+    "classification:classes": [
+      {
+        "value": 1,
+        "name": "Water"
+      },
+      {
+        "value": 2,
+        "name": "Urban"
+      },
+      {
+        "value": 3,
+        "name": "Forest"
+      },
+      {
+        "value": 4,
+        "name": "Cropland"
+      },
+      {
+        "value": 5,
+        "name": "Barren"
+      }
+    ],
+    "datetime": "2023-07-01T00:00:00Z"
   },
   "links": [
     {
@@ -53,12 +77,11 @@
   ],
   "assets": {
     "raster-data": {
-      "href": "../../data/gobindpur_lulc_2023_2024.tif",
-      "type": "image/tiff; application=geotiff",
-      "title": "Gobindpur LULC Raster (GeoTIFF)",
+      "href": "../../data/gobindpur_lulc_cog.tif",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+      "title": "Gobindpur LULC Raster (COG)",
       "roles": [
-        "data",
-        "download"
+        "data"
       ]
     },
     "qgis-style": {
@@ -66,8 +89,23 @@
       "type": "application/xml",
       "title": "QGIS Style File (QML)",
       "roles": [
-        "style",
-        "download"
+        "style"
+      ]
+    },
+    "thumbnail": {
+      "href": "../../data/thumbnail.png",
+      "type": "image/png",
+      "title": "Thumbnail Preview",
+      "roles": [
+        "thumbnail"
+      ]
+    },
+    "legend": {
+      "href": "../../data/legend.json",
+      "type": "application/json",
+      "title": "LULC Legend (JSON)",
+      "roles": [
+        "legend"
       ]
     }
   }
