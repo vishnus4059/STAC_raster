@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json
 from osgeo import gdal
+from constants import FALLBACK_START_DATE, FALLBACK_END_DATE, CLASSIFICATION_JSON
 
 # === Input and Output Paths ===
 input_tif = "/home/vishnu/corestack_STAC/data/saraikela-kharsawan_gobindpur_2023-07-01_2024-06-30_LULCmap_10m.tif"
@@ -36,7 +37,7 @@ with rasterio.open(cog_tif) as src:
     bbox = [bounds.left, bounds.bottom, bounds.right, bounds.top]
     geometry = mapping(box(*bbox))
 
-# === Extract dates from input filename ===
+# === Extract dates from input filename or fallback ===
 filename = os.path.basename(input_tif)
 parts = filename.split('_')
 try:
@@ -44,8 +45,8 @@ try:
     end_dt = datetime.strptime(parts[3], "%Y-%m-%d")
 except Exception as e:
     print(f"⚠️ Failed to extract dates from filename: {e}")
-    start_dt = datetime(2023, 6, 1)
-    end_dt = datetime(2024, 3, 31)
+    start_dt = datetime.strptime(FALLBACK_START_DATE, "%Y-%m-%d")
+    end_dt = datetime.strptime(FALLBACK_END_DATE, "%Y-%m-%d")
 
 # === STAC Catalog Setup ===
 output_dir = "/home/vishnu/corestack_STAC/output_catalog_lulc"
@@ -69,7 +70,7 @@ item = pystac.Item(
     }
 )
 
-# === Add COG Asset (relative path, no download link) ===
+# === Add COG Asset (relative href) ===
 item.add_asset(
     key="raster-data",
     asset=pystac.Asset(
@@ -114,16 +115,12 @@ item.add_asset(
     )
 )
 
-# === LULC Legend ===
-lulc_classes = [
-    {"value": 1, "name": "Water"},
-    {"value": 2, "name": "Urban"},
-    {"value": 3, "name": "Forest"},
-    {"value": 4, "name": "Cropland"},
-    {"value": 5, "name": "Barren"}
-]
+# === Load LULC classification from JSON ===
+with open(CLASSIFICATION_JSON) as f:
+    lulc_classes = json.load(f)
 item.properties["classification:classes"] = lulc_classes
 
+# Save legend JSON next to data
 legend_path = os.path.join(data_dir, "legend.json")
 with open(legend_path, "w") as f:
     json.dump(lulc_classes, f, indent=2)
@@ -151,8 +148,8 @@ if os.path.exists(default_item_path):
     os.rename(default_item_path, custom_item_path)
 
 print("\n✅ STAC catalog created with:")
-print("  📅 Dates from filename")
+print("  📅 Dates from filename or constants.py")
 print("  🖼 Thumbnail preview")
-print("  🗺 LULC legend")
+print("  🗺 LULC legend loaded from classification.json")
 print("  📄 catalog.json:", os.path.join(output_dir, "catalog.json"))
 print("  📄 item:", custom_item_path)
