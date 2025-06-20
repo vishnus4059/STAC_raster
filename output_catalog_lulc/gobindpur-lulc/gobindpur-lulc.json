@@ -94,9 +94,9 @@
       ]
     },
     "tile": {
-      "href": "https://titiler.xyz/cog/tiles/{z}/{x}/{y}.png?url=https://stactestbucket.s3.ap-south-1.amazonaws.com/gobindpur_lulc_cog.tif",
-      "type": "image/png",
-      "title": "LULC Tile Preview (via Titiler)",
+      "href": "https://titiler.xyz/cog/tilejson.json?url=https://raw.githubusercontent.com/vishnus4059/STAC_raster/master/data/gobindpur_lulc_cog.tif",
+      "type": "application/json",
+      "title": "LULC Tile Preview (Titiler)",
       "roles": [
         "tiles"
       ]
