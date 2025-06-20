@@ -70,6 +70,11 @@ item = pystac.Item(
     }
 )
 
+# Add projection extension for map compatibility
+item.stac_extensions.append("https://stac-extensions.github.io/projection/v1.0.0/schema.json")
+item.properties["proj:epsg"] = 4326  # Replace with actual EPSG if different
+item.properties["proj:bbox"] = bbox
+
 # === Add COG Asset (relative href) ===
 item.add_asset(
     key="raster-data",
