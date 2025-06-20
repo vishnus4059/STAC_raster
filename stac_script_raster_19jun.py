@@ -1,21 +1,23 @@
 import os
+import json
+from datetime import datetime
 import rasterio
+import matplotlib.pyplot as plt
 from shapely.geometry import box, mapping
 import pystac
-from datetime import datetime
-import numpy as np
-import matplotlib.pyplot as plt
-import json
 from osgeo import gdal
 from constants import FALLBACK_START_DATE, FALLBACK_END_DATE, CLASSIFICATION_JSON
 
-# === Input and Output Paths ===
+# === Input Paths ===
 input_tif = "/home/vishnu/corestack_STAC/data/saraikela-kharsawan_gobindpur_2023-07-01_2024-06-30_LULCmap_10m.tif"
 cog_tif = "/home/vishnu/corestack_STAC/data/gobindpur_lulc_cog.tif"
 qgis_style_path = "/home/vishnu/corestack_STAC/data/style_file.qml"
 data_dir = os.path.dirname(input_tif)
 
-# === Convert GeoTIFF to COG ===
+# ✅ Replace with your actual public COG URL (from S3 or GitHub raw)
+PUBLIC_COG_URL = "https://stactestbucket.s3.ap-south-1.amazonaws.com/gobindpur_lulc_cog.tif"
+
+# === Convert to COG ===
 def convert_geotiff_to_cog(input_path, output_path):
     gdal.Translate(
         output_path,
@@ -31,13 +33,14 @@ def convert_geotiff_to_cog(input_path, output_path):
 
 convert_geotiff_to_cog(input_tif, cog_tif)
 
-# === Geometry from COG ===
+# === Read geometry ===
 with rasterio.open(cog_tif) as src:
     bounds = src.bounds
     bbox = [bounds.left, bounds.bottom, bounds.right, bounds.top]
     geometry = mapping(box(*bbox))
+    epsg = src.crs.to_epsg()
 
-# === Extract dates from input filename or fallback ===
+# === Parse date from filename or fallback ===
 filename = os.path.basename(input_tif)
 parts = filename.split('_')
 try:
@@ -48,15 +51,16 @@ except Exception as e:
     start_dt = datetime.strptime(FALLBACK_START_DATE, "%Y-%m-%d")
     end_dt = datetime.strptime(FALLBACK_END_DATE, "%Y-%m-%d")
 
-# === STAC Catalog Setup ===
+# === Output setup ===
 output_dir = "/home/vishnu/corestack_STAC/output_catalog_lulc"
 item_id = "gobindpur-lulc"
 item_dir = os.path.join(output_dir, item_id)
 os.makedirs(item_dir, exist_ok=True)
 
+# === STAC Catalog and Item ===
 catalog = pystac.Catalog(
     id="gobindpur-lulc-catalog",
-    description="STAC Catalog for Gobindpur LULC 2023-24 with metadata and thumbnail"
+    description="STAC Catalog for Gobindpur LULC 2023-24 with metadata and tile preview"
 )
 
 item = pystac.Item(
@@ -66,16 +70,16 @@ item = pystac.Item(
     datetime=start_dt,
     properties={
         "start_datetime": start_dt.isoformat() + "Z",
-        "end_datetime": end_dt.isoformat() + "Z"
-    }
+        "end_datetime": end_dt.isoformat() + "Z",
+        "proj:epsg": epsg,
+        "proj:bbox": bbox
+    },
+    stac_extensions=[
+        "https://stac-extensions.github.io/projection/v1.0.0/schema.json"
+    ]
 )
 
-# Add projection extension for map compatibility
-item.stac_extensions.append("https://stac-extensions.github.io/projection/v1.0.0/schema.json")
-item.properties["proj:epsg"] = 4326  # Replace with actual EPSG if different
-item.properties["proj:bbox"] = bbox
-
-# === Add COG Asset (relative href) ===
+# === Add COG asset ===
 item.add_asset(
     key="raster-data",
     asset=pystac.Asset(
@@ -86,27 +90,38 @@ item.add_asset(
     )
 )
 
-# === QGIS Style File ===
+# === Add Tile Preview from Titiler ===
+item.add_asset(
+    key="tile",
+    asset=pystac.Asset(
+        href=f"https://titiler.xyz/cog/tiles/{{z}}/{{x}}/{{y}}.png?url={PUBLIC_COG_URL}",
+        media_type="image/png",
+        roles=["tiles"],
+        title="LULC Tile Preview (via Titiler)"
+    )
+)
+
+# === Optional QGIS Style File ===
 if os.path.exists(qgis_style_path):
     item.add_asset(
         key="qgis-style",
         asset=pystac.Asset(
             href="../../data/style_file.qml",
-            title="QGIS Style File (QML)",
             media_type="application/xml",
-            roles=["style"]
+            roles=["style"],
+            title="QGIS Style File"
         )
     )
 else:
-    print("⚠️ QML file not found. Skipping style asset.")
+    print("⚠️ QML style not found. Skipping.")
 
-# === Generate and Add Thumbnail ===
+# === Generate Thumbnail ===
 thumb_path = os.path.join(data_dir, "thumbnail.png")
 with rasterio.open(cog_tif) as src:
     array = src.read(1)
     plt.figure(figsize=(3, 3))
     plt.axis('off')
-    plt.imshow(array, cmap='tab20')
+    plt.imshow(array, cmap='viridis')
     plt.savefig(thumb_path, bbox_inches='tight', pad_inches=0)
     plt.close()
 
@@ -120,12 +135,12 @@ item.add_asset(
     )
 )
 
-# === Load LULC classification from JSON ===
+# === Classification from JSON ===
 with open(CLASSIFICATION_JSON) as f:
     lulc_classes = json.load(f)
 item.properties["classification:classes"] = lulc_classes
 
-# Save legend JSON next to data
+# Save legend to file
 legend_path = os.path.join(data_dir, "legend.json")
 with open(legend_path, "w") as f:
     json.dump(lulc_classes, f, indent=2)
@@ -146,15 +161,15 @@ catalog.normalize_hrefs(output_dir)
 catalog.make_all_asset_hrefs_relative()
 catalog.save(catalog_type=pystac.CatalogType.SELF_CONTAINED)
 
-# === Rename item.json ===
+# Rename item.json
 default_item_path = os.path.join(item_dir, "item.json")
 custom_item_path = os.path.join(item_dir, f"{item_id}.json")
 if os.path.exists(default_item_path):
     os.rename(default_item_path, custom_item_path)
 
 print("\n✅ STAC catalog created with:")
-print("  📅 Dates from filename or constants.py")
+print("  📅 Dates from filename or constants")
 print("  🖼 Thumbnail preview")
-print("  🗺 LULC legend loaded from classification.json")
+print("  🗺 Map tile preview (Titiler)")
 print("  📄 catalog.json:", os.path.join(output_dir, "catalog.json"))
 print("  📄 item:", custom_item_path)

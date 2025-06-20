@@ -93,10 +93,18 @@
         "data"
       ]
     },
+    "tile": {
+      "href": "https://titiler.xyz/cog/tiles/{z}/{x}/{y}.png?url=https://stactestbucket.s3.ap-south-1.amazonaws.com/gobindpur_lulc_cog.tif",
+      "type": "image/png",
+      "title": "LULC Tile Preview (via Titiler)",
+      "roles": [
+        "tiles"
+      ]
+    },
     "qgis-style": {
       "href": "../../data/style_file.qml",
       "type": "application/xml",
-      "title": "QGIS Style File (QML)",
+      "title": "QGIS Style File",
       "roles": [
         "style"
       ]
