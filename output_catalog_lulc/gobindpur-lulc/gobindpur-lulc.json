@@ -86,15 +86,15 @@
   ],
   "assets": {
     "raster-data": {
-      "href": "../../data/gobindpur_lulc_cog.tif",
-      "type": "image/tiff; application=geotiff; profile=cloud-optimized",
-      "title": "Gobindpur LULC Raster (COG)",
+      "href": "../../data/saraikela-kharsawan_gobindpur_2023-07-01_2024-06-30_LULCmap_10m.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Gobindpur LULC Raster (GeoTIFF)",
       "roles": [
         "data"
       ]
     },
     "tile": {
-      "href": "https://titiler.xyz/cog/tilejson.json?url=https://raw.githubusercontent.com/vishnus4059/STAC_raster/master/data/gobindpur_lulc_cog.tif",
+      "href": "https://titiler.xyz/cog/tilejson.json?url=https://raw.githubusercontent.com/vishnus4059/STAC_raster/master/data/saraikela-kharsawan_gobindpur_2023-07-01_2024-06-30_LULCmap_10m.tif",
       "type": "application/json",
       "title": "LULC Tile Preview (Titiler)",
       "roles": [

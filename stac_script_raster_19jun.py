@@ -5,36 +5,18 @@ import rasterio
 import matplotlib.pyplot as plt
 from shapely.geometry import box, mapping
 import pystac
-from osgeo import gdal
 from constants import FALLBACK_START_DATE, FALLBACK_END_DATE, CLASSIFICATION_JSON
 
 # === Input and Output Paths ===
 input_tif = "/home/vishnu/corestack_STAC/data/saraikela-kharsawan_gobindpur_2023-07-01_2024-06-30_LULCmap_10m.tif"
-output_cog = "/home/vishnu/corestack_STAC/data/gobindpur_lulc_cog.tif"
 qgis_style_path = "/home/vishnu/corestack_STAC/data/style_file.qml"
 data_dir = os.path.dirname(input_tif)
 
-# === Public Raw GitHub COG URL
-PUBLIC_COG_URL = "https://raw.githubusercontent.com/vishnus4059/STAC_raster/master/data/gobindpur_lulc_cog.tif"
-
-# === Convert GeoTIFF to COG
-def convert_geotiff_to_cog(input_path, output_path):
-    gdal.Translate(
-        output_path,
-        input_path,
-        format='COG',
-        creationOptions=[
-            'COMPRESS=DEFLATE',
-            'BLOCKSIZE=512',
-            'BIGTIFF=YES'
-        ]
-    )
-    print(f"✅ COG saved to: {output_path}")
-
-convert_geotiff_to_cog(input_tif, output_cog)
+# === Public Raw GitHub URL for GeoTIFF (not COG)
+PUBLIC_TIF_URL = "https://raw.githubusercontent.com/vishnus4059/STAC_raster/master/data/saraikela-kharsawan_gobindpur_2023-07-01_2024-06-30_LULCmap_10m.tif"
 
 # === Geometry and projection info ===
-with rasterio.open(output_cog) as src:
+with rasterio.open(input_tif) as src:
     bounds = src.bounds
     bbox = [bounds.left, bounds.bottom, bounds.right, bounds.top]
     geometry = mapping(box(*bbox))
@@ -78,22 +60,22 @@ item = pystac.Item(
     ]
 )
 
-# === COG asset (relative path)
+# === GeoTIFF asset (relative path)
 item.add_asset(
     key="raster-data",
     asset=pystac.Asset(
-        href="../../data/gobindpur_lulc_cog.tif",
-        media_type=pystac.MediaType.COG,
+        href="../../data/" + os.path.basename(input_tif),
+        media_type=pystac.MediaType.GEOTIFF,
         roles=["data"],
-        title="Gobindpur LULC Raster (COG)"
+        title="Gobindpur LULC Raster (GeoTIFF)"
     )
 )
 
-# === Tile preview via Titiler
+# === Tile preview via Titiler (optional)
 item.add_asset(
     key="tile",
     asset=pystac.Asset(
-        href=f"https://titiler.xyz/cog/tilejson.json?url={PUBLIC_COG_URL}",
+        href=f"https://titiler.xyz/cog/tilejson.json?url={PUBLIC_TIF_URL}",
         media_type="application/json",
         roles=["tiles"],
         title="LULC Tile Preview (Titiler)"
@@ -116,7 +98,7 @@ else:
 
 # === Generate thumbnail preview
 thumb_path = os.path.join(data_dir, "thumbnail.png")
-with rasterio.open(output_cog) as src:
+with rasterio.open(input_tif) as src:
     array = src.read(1)
 
 plt.figure(figsize=(3, 3))
