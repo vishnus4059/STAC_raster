@@ -51,68 +51,68 @@
     "classification:classes": [
       {
         "value": 0,
-        "name": "Class 0",
+        "name": "clear",
         "color": "#000000"
       },
       {
         "value": 1,
-        "name": "Class 1",
+        "name": "built up",
         "color": "#ff0000"
       },
       {
         "value": 2,
-        "name": "Class 2",
+        "name": "kharif water",
         "color": "#74ccf4"
       },
       {
         "value": 3,
-        "name": "Class 3",
+        "name": "kharif and rabi water",
         "color": "#1ca3ec"
       },
       {
         "value": 4,
-        "name": "Class 4",
+        "name": "kharif and rabi and zaid water",
         "color": "#0f5e9c"
       },
       {
         "value": 5,
-        "name": "Class 5",
+        "name": "croplands",
         "color": "#f1c232"
       },
       {
         "value": 6,
-        "name": "Class 6",
+        "name": "Tree/Forests",
         "color": "#38761d"
       },
       {
         "value": 7,
-        "name": "Class 7",
-        "color": "#A9A9A9"
+        "name": "barren lands",
+        "color": "#a9a9a9"
       },
       {
         "value": 8,
-        "name": "Class 8",
-        "color": "#f1c232"
+        "name": "Single Kharif Cropping",
+        "color": "#bad93e"
       },
       {
         "value": 9,
-        "name": "Class 9",
+        "name": "Single Non-Kharif Cropping",
         "color": "#f59d22"
       },
       {
         "value": 10,
-        "name": "Class 10",
-        "color": "#e68600"
+        "name": "Double Cropping",
+        "color": "#ff9371"
       },
       {
         "value": 11,
-        "name": "Class 11",
+        "name": "Triple Cropping",
         "color": "#b3561d"
       },
       {
         "value": 12,
-        "name": "Class 12",
-        "color": "#c39797"
+        "name": "Shrubs_Scrubs",
+        "color": "#a9a9a9"
       }
     ],
     "datetime": "2023-07-01T00:00:00Z"
@@ -138,10 +138,26 @@
         "data"
       ]
     },
+    "tile": {
+      "href": "https://titiler.xyz/cog/tilejson.json?url=https://raw.githubusercontent.com/vishnus4059/STAC_raster/master/data/saraikela-kharsawan_gobindpur_2023-07-01_2024-06-30_LULCmap_10m.tif",
+      "type": "application/json",
+      "title": "LULC Tile Preview (Titiler)",
+      "roles": [
+        "tiles"
+      ]
+    },
+    "qgis-style": {
+      "href": "../../data/style_file.qml",
+      "type": "application/xml",
+      "title": "QGIS Style File",
+      "roles": [
+        "style"
+      ]
+    },
     "legend": {
       "href": "../../data/legend.json",
       "type": "application/json",
-      "title": "LULC Legend (vis_params)",
+      "title": "LULC Legend (from QML)",
       "roles": [
         "legend"
       ]
@@ -149,7 +165,7 @@
     "thumbnail": {
       "href": "../../data/thumbnail.png",
       "type": "image/png",
-      "title": "LULC Thumbnail",
+      "title": "Thumbnail Preview",
       "roles": [
         "thumbnail"
       ]
