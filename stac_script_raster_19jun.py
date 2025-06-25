@@ -7,15 +7,15 @@ from shapely.geometry import box, mapping
 import pystac
 import xml.etree.ElementTree as ET
 
-# === Input and Output Paths ===
+
 input_tif = "/home/vishnu/corestack_STAC/data/saraikela-kharsawan_gobindpur_2023-07-01_2024-06-30_LULCmap_10m.tif"
 qgis_style_path = "/home/vishnu/corestack_STAC/data/style_file.qml"
 data_dir = os.path.dirname(input_tif)
 
-# === Public GitHub GeoTIFF URL
+
 PUBLIC_TIF_URL = "https://raw.githubusercontent.com/vishnus4059/STAC_raster/master/data/saraikela-kharsawan_gobindpur_2023-07-01_2024-06-30_LULCmap_10m.tif"
 
-# === Parse QML for classification:classes
+
 def parse_qml_to_classes(qml_path):
     tree = ET.parse(qml_path)
     root = tree.getroot()
@@ -136,7 +136,7 @@ if os.path.exists(qgis_style_path):
 else:
     print("⚠️ QML file not found. Skipping style and legend.")
 
-# === Generate Basic Thumbnail (optional: we can color it later)
+
 thumb_path = os.path.join(data_dir, "thumbnail.png")
 with rasterio.open(input_tif) as src:
     array = src.read(1)
@@ -157,22 +157,22 @@ item.add_asset(
     )
 )
 
-# === Finalize and Save Catalog
+
 catalog.add_item(item)
 catalog.normalize_hrefs(output_dir)
 catalog.make_all_asset_hrefs_relative()
 catalog.save(catalog_type=pystac.CatalogType.SELF_CONTAINED)
 
-# === Rename item.json to gobindpur-lulc.json
+
 default_item_path = os.path.join(item_dir, "item.json")
 custom_item_path = os.path.join(item_dir, f"{item_id}.json")
 if os.path.exists(default_item_path):
     os.rename(default_item_path, custom_item_path)
 
-print("\n✅ STAC catalog created with:")
-print("  📅 Dates from filename or fallback")
-print("  🎨 classification:classes from QML")
-print("  🖼 Thumbnail preview")
-print("  🗺 Tile preview via Titiler")
-print("  📄 catalog.json:", os.path.join(output_dir, "catalog.json"))
-print("  📄 item:", custom_item_path)
+print("\n STAC catalog created with:")
+print("  Dates from filename or fallback")
+print("   classification:classes from QML")
+print("   Thumbnail preview")
+print("   Tile preview via Titiler")
+print("   catalog.json:", os.path.join(output_dir, "catalog.json"))
+print("   item:", custom_item_path)
