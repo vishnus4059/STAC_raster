@@ -157,7 +157,7 @@
     "legend": {
       "href": "../../data/legend.json",
       "type": "application/json",
-      "title": "LULC Legend (from QML)",
+      "title": "LULC Legend",
       "roles": [
         "legend"
       ]
