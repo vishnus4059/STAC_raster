@@ -138,14 +138,6 @@
         "data"
       ]
     },
-    "tile": {
-      "href": "https://titiler.xyz/cog/tilejson.json?url=https://raw.githubusercontent.com/vishnus4059/STAC_raster/master/data/saraikela-kharsawan_gobindpur_2023-07-01_2024-06-30_LULCmap_10m.tif",
-      "type": "application/json",
-      "title": "LULC Tile Preview (Titiler)",
-      "roles": [
-        "tiles"
-      ]
-    },
     "qgis-style": {
       "href": "../../data/style_file.qml",
       "type": "application/xml",

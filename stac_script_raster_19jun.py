@@ -12,8 +12,6 @@ input_tif = "/home/vishnu/corestack_STAC/data/saraikela-kharsawan_gobindpur_2023
 qgis_style_path = "/home/vishnu/corestack_STAC/data/style_file.qml"
 data_dir = os.path.dirname(input_tif)
 
-PUBLIC_TIF_URL = "https://raw.githubusercontent.com/vishnus4059/STAC_raster/master/data/saraikela-kharsawan_gobindpur_2023-07-01_2024-06-30_LULCmap_10m.tif"
-
 
 def parse_qml_to_classes(qml_path):
     try:
@@ -60,7 +58,7 @@ os.makedirs(item_dir, exist_ok=True)
 
 catalog = pystac.Catalog(
     id="gobindpur-lulc-catalog",
-    description="STAC Catalog for Gobindpur LULC 2023-24 with metadata, tile preview, and legend"
+    description="Land Use Land Cover (LULC) classification is a method used to identify different features on the Earth's surface, such as forests, rivers, croplands, or buildings, and is used for monitoring and planning land use. The LULC data is derived from multiple sources including multi-spectral data from Landsat-7, Landsat-8, Sentinel-2, MODIS, and Sentinel-1 satellite constellations, Dynamic World data, and Open Street Maps. The classification process involves a series of binary classifications, followed by error-correction layers for each LULC class. Dynamic World data is used to identify built-up areas, barren lands, and shrubs, while Sentinel-1 SAR data is used to identify water pixels, particularly in the Kharif season. Non-classified pixels are categorized into croplands and forests/trees, with further classification of cropland pixels into single Kharif, single non-Kharif, double, and triple cropping. The LULC classifier generates annual outputs from 2003 to the present, with a spatial resolution of 10m. The model has an accuracy of 83% in classifying areas by cropping intensity and 94% accuracy on standard LULC labels. LULC data is used for tracking anthropogenic activities, designing sustainable land management policies, understanding changes in crop water usage, and detecting water bodies with seasonal availability."
 )
 
 item = pystac.Item(
@@ -90,18 +88,7 @@ item.add_asset(
     )
 )
 
-# === Titiler Tile Preview
-item.add_asset(
-    key="tile",
-    asset=pystac.Asset(
-        href=f"https://titiler.xyz/cog/tilejson.json?url={PUBLIC_TIF_URL}",
-        media_type="application/json",
-        roles=["tiles"],
-        title="LULC Tile Preview (Titiler)"
-    )
-)
-
-# === Classification via QML
+# === QML Style + Classification Classes
 if os.path.exists(qgis_style_path):
     print("✅ QML file found. Parsing classification...")
     lulc_classes = parse_qml_to_classes(qgis_style_path)
@@ -171,6 +158,5 @@ print("\n✅ STAC catalog created with:")
 print("  ✔ Dates from filename")
 print("  ✔ classification:classes from QML")
 print("  ✔ Thumbnail preview")
-print("  ✔ Tile preview via Titiler")
 print("📄 catalog.json:", os.path.join(output_dir, "catalog.json"))
 print("📄 item:", custom_item_path)
